@@ -18,7 +18,17 @@ export const mutations = {
 // rootGetters => store/index.js의 getters(?)
 export const actions = {
     signUp({ commit, dispatch, state, rootState, getter, rootGetters }, payload) {
-        commit("setMe", payload); // setMe 뮤테이션을 실행하고 payload를 넘긴다.
+
+        console.log("스토어 들어옴");
+
+        this.$axios.post("http://localhost:3085/user", {
+            email: payload.id,
+            nickname: payload.name,
+            password: payload.password
+        })
+        .then((response) => {
+            console.log(response)
+        })
     },
     logIn({commit}, payload) {
         commit("setMe", payload);

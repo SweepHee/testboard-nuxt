@@ -1,36 +1,53 @@
 const express = require("express");
+const cors = require("cors");
+const bcrypt = require("bcrypt");
+
 const db = require("./models");
 const app = express();
 
-db.sequelize.sync();
+db.sequelize.sync({ force: true });
 
+app.use(cors("http://localhost:3000"));
 app.use(express.json());
 
-// form을 통해서 전송된 데이터를 req.body로 받으려면 아래 선언해줘야 함.
 app.use(express.urlencoded({ extended: false}));
 
 app.get("/", (req, res) => {
     res.send("안녕 시퀄라이즈");
-})
+});
 
 app.post("/user", async (req, res, next) => {
     try {
-        const newUser = await db.User.create({
-            where: {
-                email: req.body.email,
-                password: req.body.password,
-                nickname: req.body.nickname
-            }
+        const hash = await bcrypt.hash(req.body.password, 12);
+
+        const exUser = await db.User.findOne({
+            email: req.body.email,
         });
-        res.status(201).json(newUser);
-        // send는 문자열로 응답, json은 json형태로 응답
+        if(exUser) { // 이미 회원가입되어있으면
+            return res.status(403).json({
+                errorCode: 2,
+                message: "이미 회원가입 되어있습니다."
+            });
+        }
+
+        const newUser = await db.User.create({
+            email: req.body.email,
+            password: hash,
+            nickname: req.body.nickname
+        });
+        return res.status(201).json(newUser);
     } catch(err) {
         console.log(err);
         next(err);
     }
-
-
 })
+
+app.post("/user/login", (req, res) => {
+    req.body.email
+    req.body.password
+})
+
+
 
 app.listen(3085, () => {
     console.log(`백엔드 서버 ${3085}번 포트에서 작동중`);

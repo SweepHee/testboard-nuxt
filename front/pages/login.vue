@@ -1,7 +1,7 @@
 <template>
     <div>
         <div v-if="!me">
-            <form v-model="validation" @submit.prevent="onSubmitForm">
+            <form @submit.prevent="onSubmitForm">
                 <input type="text" v-model="id" placeholder="아이디" />
                 <input type="text" v-model="password" placeholder="비밀번호" />
                 <input type="text" v-model="name" placeholder="성명" />
@@ -45,11 +45,14 @@ export default {
                 return false;
             }
 
+            console.log(this.id+this.password+this.name);
+
             this.$store.dispatch("users/signUp", {
                 id: this.id,
                 password: this.password,
                 name: this.name
             });
+            console.log("111111");
         },
         onLogout() {
             this.$store.dispatch("users/logOut")
